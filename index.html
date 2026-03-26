@@ -271,14 +271,180 @@ body {
 }
 #result-sub { font-size: 1em; color: #888; letter-spacing: 2px; }
 
-/* Responsive */
-@media (max-width: 900px) {
-  #main-area { flex-direction: column; align-items: center; }
-  #synergy-panel, #side-panel { width: 100%; max-width: 400px; }
+/* ===== PORTRAIT LOCK OVERLAY ===== */
+#rotate-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10,6,2,0.97);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  color: var(--gold);
+  text-align: center;
+  padding: 30px;
+}
+#rotate-overlay .rotate-icon {
+  font-size: 4em;
+  animation: rotate-hint 2s ease-in-out infinite;
+}
+@keyframes rotate-hint {
+  0%,100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+#rotate-overlay .rotate-text {
+  font-size: 1.2em;
+  letter-spacing: 2px;
+}
+#rotate-overlay .rotate-sub {
+  font-size: 0.8em;
+  color: #886633;
+}
+
+/* ===== MOBILE LANDSCAPE ===== */
+@media (max-width: 900px) and (orientation: portrait) {
+  #rotate-overlay { display: flex !important; }
+  #game { display: none !important; }
+  #header { display: none !important; }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  #rotate-overlay { display: none !important; }
+  #game { display: flex !important; }
+
+  body { overflow: auto; }
+
+  #header {
+    padding: 4px 0 2px;
+  }
+  #header h1 {
+    font-size: 1em;
+    letter-spacing: 3px;
+  }
+  #header .sub {
+    font-size: 0.55em;
+    margin-top: 1px;
+  }
+
+  #game {
+    padding: 4px;
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  #main-area {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+  }
+
+  /* Synergy: compact column on left */
+  #synergy-panel {
+    width: 100px;
+    min-width: 100px;
+    padding: 4px;
+  }
+  #synergy-panel h3 {
+    font-size: 0.65em;
+    margin-bottom: 4px;
+    padding-bottom: 3px;
+  }
+  .syn-row {
+    padding: 3px 2px;
+    margin-bottom: 2px;
+    gap: 3px;
+  }
+  .syn-icon { font-size: 0.9em; }
+  .syn-name { font-size: 0.58em; }
+  .syn-count { font-size: 0.52em; }
+  .syn-desc { font-size: 0.48em; }
+  .syn-details { display: none; }
+
+  /* Battlefield: center, scaled to fit */
+  #battlefield-wrap {
+    flex: 1;
+    min-width: 0;
+    gap: 2px;
+  }
+  .zone-label { font-size: 0.55em; }
+
+  #pixi-container {
+    border-width: 1px;
+  }
+
+  /* Side panel: compact column on right */
+  #side-panel {
+    width: 120px;
+    min-width: 120px;
+    gap: 4px;
+  }
+  .panel-box {
+    padding: 4px;
+  }
+  .panel-box h3 {
+    font-size: 0.62em;
+    margin-bottom: 4px;
+    padding-bottom: 3px;
+    letter-spacing: 1px;
+  }
+
+  /* Bench: tighter */
+  #bench-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+  .bench-card {
+    border-radius: 3px;
+  }
+  .bc-emoji { font-size: 1.1em; }
+  .bc-name { font-size: 0.42em; }
+  .bc-class { display: none; }
+  .bench-card + div[style] { display: none; }
+
+  /* Log: very compact */
+  #log-box {
+    max-height: 120px;
+  }
+  .log-e { font-size: 0.52em; padding: 1px 0; }
+
+  /* Controls: single row, compact */
+  #controls {
+    padding: 2px 0;
+    gap: 6px;
+  }
+  .phase-badge {
+    padding: 3px 8px;
+    font-size: 0.6em;
+  }
+  .btn {
+    padding: 4px 10px;
+    font-size: 0.65em;
+  }
+  .btn.primary {
+    padding: 5px 14px;
+    font-size: 0.7em;
+  }
+  .hint { font-size: 0.5em; }
+  #fps-counter { font-size: 0.5em; }
+}
+
+/* Desktop responsive */
+@media (min-width: 901px) {
+  #rotate-overlay { display: none !important; }
 }
 </style>
 </head>
 <body>
+
+<!-- 竖屏提示 -->
+<div id="rotate-overlay">
+  <div class="rotate-icon">📱</div>
+  <div class="rotate-text">请横屏游玩</div>
+  <div class="rotate-sub">Please rotate your device to landscape</div>
+</div>
 
 <div id="header">
   <h1>⚔️ 魔兽自走棋 ⚔️</h1>
@@ -1449,6 +1615,53 @@ app.ticker.add((delta) => {
 });
 
 // ============================================================
+//  Canvas自适应缩放 (手机横屏适配)
+// ============================================================
+function resizeCanvas() {
+  const container = document.getElementById('pixi-container');
+  const isMobile = window.innerWidth <= 900;
+
+  if (!isMobile) {
+    // Desktop: use original size
+    container.style.width = '';
+    container.style.height = '';
+    app.renderer.resize(BF_W, BF_H);
+    app.stage.scale.set(1);
+    return;
+  }
+
+  // Mobile landscape: calculate available space
+  // Available width = viewport width - synergy panel(~104px) - side panel(~128px) - gaps(~16px)
+  const synW = 108;
+  const sideW = 128;
+  const gaps = 20;
+  const availW = window.innerWidth - synW - sideW - gaps;
+  // Available height = viewport height - header(~30px) - controls(~30px) - zone labels(~30px) - padding
+  const availH = window.innerHeight - 100;
+
+  const scaleX = availW / BF_W;
+  const scaleY = availH / BF_H;
+  const scale = Math.min(scaleX, scaleY, 1); // Never upscale
+
+  const displayW = Math.floor(BF_W * scale);
+  const displayH = Math.floor(BF_H * scale);
+
+  // CSS scaling for the container
+  container.style.width = displayW + 'px';
+  container.style.height = displayH + 'px';
+
+  // Keep internal resolution but scale with CSS
+  app.renderer.resize(BF_W, BF_H);
+  app.view.style.width = displayW + 'px';
+  app.view.style.height = displayH + 'px';
+}
+
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => {
+  setTimeout(resizeCanvas, 200);
+});
+
+// ============================================================
 //  初始化
 // ============================================================
 function init() {
@@ -1456,6 +1669,7 @@ function init() {
   buildBench();
   placeEnemies();
   updateSynPanel();
+  resizeCanvas();
   addLog('欢迎来到魔兽自走棋！', 'sys');
   addLog('选择英雄放到绿色区域，然后开始战斗。', 'sys');
 }
