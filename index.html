@@ -304,94 +304,118 @@ body {
 }
 
 /* ===== MOBILE LANDSCAPE ===== */
-@media (max-width: 900px) and (orientation: portrait) {
+@media (max-width: 932px) and (orientation: portrait) {
   #rotate-overlay { display: flex !important; }
   #game { display: none !important; }
   #header { display: none !important; }
 }
 
-@media (max-width: 900px) and (orientation: landscape) {
+@media (max-width: 932px) and (orientation: landscape) {
   #rotate-overlay { display: none !important; }
   #game { display: flex !important; }
 
-  body { overflow: auto; }
+  /* Force everything into viewport height */
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
 
   #header {
-    padding: 4px 0 2px;
+    padding: 2px 0 1px;
+    flex-shrink: 0;
   }
   #header h1 {
-    font-size: 1em;
-    letter-spacing: 3px;
+    font-size: 0.85em;
+    letter-spacing: 2px;
   }
   #header .sub {
-    font-size: 0.55em;
-    margin-top: 1px;
+    font-size: 0.5em;
+    margin-top: 0;
   }
 
   #game {
-    padding: 4px;
-    gap: 4px;
+    padding: 2px 4px;
+    gap: 2px;
     max-width: 100%;
+    height: calc(100vh - 28px);
+    overflow: hidden;
   }
 
   #main-area {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 4px;
     width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
 
-  /* Synergy: compact column on left */
+  /* Synergy: narrow column on left */
   #synergy-panel {
-    width: 100px;
-    min-width: 100px;
-    padding: 4px;
+    width: 90px;
+    min-width: 90px;
+    padding: 3px;
+    overflow-y: auto;
   }
   #synergy-panel h3 {
-    font-size: 0.65em;
-    margin-bottom: 4px;
-    padding-bottom: 3px;
+    font-size: 0.6em;
+    margin-bottom: 3px;
+    padding-bottom: 2px;
   }
   .syn-row {
-    padding: 3px 2px;
+    padding: 2px;
     margin-bottom: 2px;
     gap: 3px;
   }
-  .syn-icon { font-size: 0.9em; }
-  .syn-name { font-size: 0.58em; }
-  .syn-count { font-size: 0.52em; }
-  .syn-desc { font-size: 0.48em; }
+  .syn-icon { font-size: 0.85em; }
+  .syn-name { font-size: 0.55em; }
+  .syn-count { font-size: 0.5em; }
+  .syn-desc { font-size: 0.45em; }
   .syn-details { display: none; }
 
   /* Battlefield: center, scaled to fit */
   #battlefield-wrap {
     flex: 1;
     min-width: 0;
-    gap: 2px;
+    gap: 1px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
-  .zone-label { font-size: 0.55em; }
+  .zone-label { font-size: 0.5em; line-height: 1.2; }
 
   #pixi-container {
     border-width: 1px;
+    flex-shrink: 1;
   }
 
   /* Side panel: compact column on right */
   #side-panel {
-    width: 120px;
-    min-width: 120px;
-    gap: 4px;
+    width: 110px;
+    min-width: 110px;
+    gap: 3px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   .panel-box {
-    padding: 4px;
+    padding: 3px;
+    min-height: 0;
   }
   .panel-box h3 {
-    font-size: 0.62em;
-    margin-bottom: 4px;
-    padding-bottom: 3px;
+    font-size: 0.58em;
+    margin-bottom: 3px;
+    padding-bottom: 2px;
     letter-spacing: 1px;
   }
 
   /* Bench: tighter */
+  #bench-panel {
+    flex-shrink: 0;
+  }
   #bench-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 2px;
@@ -399,40 +423,44 @@ body {
   .bench-card {
     border-radius: 3px;
   }
-  .bc-emoji { font-size: 1.1em; }
-  .bc-name { font-size: 0.42em; }
+  .bc-emoji { font-size: 1em; }
+  .bc-name { font-size: 0.4em; }
   .bc-class { display: none; }
   .bench-card + div[style] { display: none; }
 
-  /* Log: very compact */
+  /* Log: fill remaining space */
   #log-box {
-    max-height: 120px;
+    flex: 1;
+    max-height: none;
+    overflow-y: auto;
+    min-height: 0;
   }
-  .log-e { font-size: 0.52em; padding: 1px 0; }
+  .log-e { font-size: 0.48em; padding: 1px 0; }
 
-  /* Controls: single row, compact */
+  /* Controls: fixed bottom bar */
   #controls {
     padding: 2px 0;
-    gap: 6px;
+    gap: 5px;
+    flex-shrink: 0;
   }
   .phase-badge {
+    padding: 2px 6px;
+    font-size: 0.55em;
+  }
+  .btn {
     padding: 3px 8px;
     font-size: 0.6em;
   }
-  .btn {
-    padding: 4px 10px;
+  .btn.primary {
+    padding: 4px 12px;
     font-size: 0.65em;
   }
-  .btn.primary {
-    padding: 5px 14px;
-    font-size: 0.7em;
-  }
-  .hint { font-size: 0.5em; }
-  #fps-counter { font-size: 0.5em; }
+  .hint { font-size: 0.45em; }
+  #fps-counter { font-size: 0.45em; }
 }
 
 /* Desktop responsive */
-@media (min-width: 901px) {
+@media (min-width: 933px) {
   #rotate-overlay { display: none !important; }
 }
 </style>
@@ -847,15 +875,20 @@ function createUnitGfx(u) {
   emoji.anchor.set(0.5);
   emoji.y = -6;
 
-  // Name label
-  const name = new PIXI.Text(u.name, {
-    fontSize: 11,
+  // Name label - auto-scale to fit within cell width
+  const maxNameW = halfW * 2 - 6;
+  const nameText = new PIXI.Text(u.name, {
+    fontSize: 12,
     fill: 0xf0d080,
     fontFamily: 'Georgia, serif',
     align: 'center',
   });
-  name.anchor.set(0.5);
-  name.y = 16;
+  nameText.anchor.set(0.5);
+  nameText.y = 16;
+  // Scale down if name is wider than cell
+  if (nameText.width > maxNameW) {
+    nameText.scale.set(maxNameW / nameText.width);
+  }
 
   // HP bar background
   const barW = halfW * 2 - 8;
@@ -882,7 +915,7 @@ function createUnitGfx(u) {
   mnBar.x = -barW/2;
   mnBar.y = halfH - 7;
 
-  container.addChild(body, glow, emoji, name, hpBg, hpBar, mnBg, mnBar);
+  container.addChild(body, glow, emoji, nameText, hpBg, hpBar, mnBg, mnBar);
 
   // Enemy tint overlay
   if (u.team === 'enemy') {
@@ -898,7 +931,7 @@ function createUnitGfx(u) {
 
   // Store references
   u.gfx = container;
-  u.gfxParts = { body, emoji, name, hpBar, mnBar, barW, halfW, halfH };
+  u.gfxParts = { body, emoji, nameText, hpBar, mnBar, barW, halfW, halfH };
 }
 
 function drawHpBar(g, barW, pct) {
@@ -1630,27 +1663,23 @@ function resizeCanvas() {
     return;
   }
 
-  // Mobile landscape: calculate available space
-  // Available width = viewport width - synergy panel(~104px) - side panel(~128px) - gaps(~16px)
-  const synW = 108;
-  const sideW = 128;
-  const gaps = 20;
-  const availW = window.innerWidth - synW - sideW - gaps;
-  // Available height = viewport height - header(~30px) - controls(~30px) - zone labels(~30px) - padding
-  const availH = window.innerHeight - 100;
+  // Mobile landscape: fit canvas into available space
+  // Panels: synergy(~94px) + side(~114px) + gaps+borders(~20px)
+  const panelsW = 94 + 114 + 20;
+  const availW = window.innerWidth - panelsW;
+  // Height: viewport - header(~24px) - controls(~26px) - zone labels(~16px) - padding(~10px)
+  const availH = window.innerHeight - 76;
 
   const scaleX = availW / BF_W;
   const scaleY = availH / BF_H;
-  const scale = Math.min(scaleX, scaleY, 1); // Never upscale
+  const scale = Math.min(scaleX, scaleY, 1);
 
   const displayW = Math.floor(BF_W * scale);
   const displayH = Math.floor(BF_H * scale);
 
-  // CSS scaling for the container
   container.style.width = displayW + 'px';
   container.style.height = displayH + 'px';
 
-  // Keep internal resolution but scale with CSS
   app.renderer.resize(BF_W, BF_H);
   app.view.style.width = displayW + 'px';
   app.view.style.height = displayH + 'px';
