@@ -1705,19 +1705,15 @@ window.addEventListener('orientationchange', () => {
 const TEXTURES = {};
 const PORTRAIT_IDS = ['garrosh','varian','bolvar','jaina','khadgar','antonidas','anduin','tyrande','velen'];
 
-function preloadTextures(onDone) {
-  const loader = new PIXI.Loader();
-  PORTRAIT_IDS.forEach(id => loader.add(id, `assets/${id}.png`));
-  loader.onError.add((err, _, res) => console.warn('texture load failed:', res.name, err));
-  loader.load((_, resources) => {
-    PORTRAIT_IDS.forEach(id => {
-      if (resources[id] && resources[id].texture) {
-        TEXTURES[id] = resources[id].texture;
-      }
-    });
-    console.log('Textures loaded:', Object.keys(TEXTURES));
-    onDone();
-  });
+async function preloadTextures() {
+  for (const id of PORTRAIT_IDS) {
+    try {
+      TEXTURES[id] = await PIXI.Assets.load(`assets/${id}.png`);
+    } catch(e) {
+      console.warn('texture load failed:', id, e);
+    }
+  }
+  console.log('Textures loaded:', Object.keys(TEXTURES));
 }
 
 function init() {
@@ -1730,7 +1726,7 @@ function init() {
   addLog('选择英雄放到绿色区域，然后开始战斗。', 'sys');
 }
 
-preloadTextures(() => init());
+preloadTextures().then(() => init()).catch(() => init());
 </script>
 </body>
 </html>
