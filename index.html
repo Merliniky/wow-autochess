@@ -867,13 +867,22 @@ function createUnitGfx(u) {
   glow.drawRoundedRect(-halfW + 2, -halfH + 2, halfW * 2 - 4, halfH * 2 - 4, 4);
   glow.endFill();
 
-  // Emoji (character icon)
-  const emoji = new PIXI.Text(u.emoji, {
-    fontSize: 30,
-    align: 'center',
-  });
-  emoji.anchor.set(0.5);
-  emoji.y = -6;
+  // Portrait / Emoji (character icon)
+  // Safe area: body is ±39px, name at y=16, bars at y=25/32
+  // Portrait: 42x42 centered at y=-18 fits within body without masking
+  let portrait;
+  const tex = TEXTURES[u.id];
+  if (tex) {
+    portrait = new PIXI.Sprite(tex);
+    portrait.width = 42;
+    portrait.height = 42;
+    portrait.anchor.set(0.5);
+    portrait.y = -18;
+  } else {
+    portrait = new PIXI.Text(u.emoji, { fontSize: 30, align: 'center' });
+    portrait.anchor.set(0.5);
+    portrait.y = -6;
+  }
 
   // Name label - auto-scale to fit within cell width
   const maxNameW = halfW * 2 - 6;
@@ -915,7 +924,7 @@ function createUnitGfx(u) {
   mnBar.x = -barW/2;
   mnBar.y = halfH - 7;
 
-  container.addChild(body, glow, emoji, nameText, hpBg, hpBar, mnBg, mnBar);
+  container.addChild(body, glow, portrait, nameText, hpBg, hpBar, mnBg, mnBar);
 
   // Enemy tint overlay
   if (u.team === 'enemy') {
@@ -931,7 +940,7 @@ function createUnitGfx(u) {
 
   // Store references
   u.gfx = container;
-  u.gfxParts = { body, emoji, nameText, hpBar, mnBar, barW, halfW, halfH };
+  u.gfxParts = { body, portrait, nameText, hpBar, mnBar, barW, halfW, halfH };
 }
 
 function drawHpBar(g, barW, pct) {
@@ -1693,6 +1702,24 @@ window.addEventListener('orientationchange', () => {
 // ============================================================
 //  初始化
 // ============================================================
+const TEXTURES = {};
+const PORTRAIT_IDS = ['garrosh','varian','bolvar','jaina','khadgar','antonidas','anduin','tyrande','velen'];
+
+function preloadTextures(onDone) {
+  const loader = new PIXI.Loader();
+  PORTRAIT_IDS.forEach(id => loader.add(id, `assets/${id}.png`));
+  loader.onError.add((err, _, res) => console.warn('texture load failed:', res.name, err));
+  loader.load((_, resources) => {
+    PORTRAIT_IDS.forEach(id => {
+      if (resources[id] && resources[id].texture) {
+        TEXTURES[id] = resources[id].texture;
+      }
+    });
+    console.log('Textures loaded:', Object.keys(TEXTURES));
+    onDone();
+  });
+}
+
 function init() {
   drawGrid();
   buildBench();
@@ -1702,7 +1729,8 @@ function init() {
   addLog('欢迎来到魔兽自走棋！', 'sys');
   addLog('选择英雄放到绿色区域，然后开始战斗。', 'sys');
 }
-init();
+
+preloadTextures(() => init());
 </script>
 </body>
 </html>
