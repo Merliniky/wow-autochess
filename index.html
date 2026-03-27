@@ -871,7 +871,7 @@ function createUnitGfx(u) {
   // Safe area: body is ±39px, name at y=16, bars at y=25/32
   // Portrait: 42x42 centered at y=-18 fits within body without masking
   let portrait;
-  const tex = TEXTURES[u.id];
+  const tex = TEXTURES[u.charId];
   if (tex) {
     portrait = new PIXI.Sprite(tex);
     portrait.width = 42;
